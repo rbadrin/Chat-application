@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+  var socket = io();
+  function username(){
+    socket.emit('setUsername', document.getElementById('Username').value);
+  }
+  socket.on('Error',function(data){
+    document.getElementById('error-area').innerHTML=data;
+  });
+  socket.on('User connected',function(data){
+  user_name=data.name;
+    document.body.innerHTML='<input type = "text" id = "message">\
+         <button type = "button" name = "button" onclick = "sendMessage()">Send</button>\
+         <button type = "button" name = "button1" onclick = "fun1()">Close</button>\
+         <div id = "userconnected"></div>\
+         <div id = "message-area"></div>'
+  });
+  socket.on('users online',function(data){
+    document.getElementById('userconnected').innerHTML='<div>'+data+'</div>';
+  })
+  function sendMessage(){
+    var msg=document.getElementById('message').value;
+    if(msg)
+      socket.emit('Chatting',{ name : user_name,message : msg});
+  }
+  socket.on('displaymsg',function(data){
+    var x=data.msg;
+    if(x.name)
+      document.getElementById('message-area').innerHTML+='<div><b>' +
+               x.name + '</b>: ' +x.message +'</div>';
+    // document.getElementById('userconnected').innerHTML='<div>'+data.cli+'</div>';
+  });
+
+  function fun1(){
+    document.write("User session closed !!!");
+    socket.emit('quittt',user_name);
+  }
+</script>
+  <body>
+    <div id = "error-area"></div>
+    <input type="text" id="Username" placeholder="Enter your name"/>
+    <!-- <input type="text" id="room" placeholder="Room name"/> -->
+    <button type = "button" name = "button" onclick = "username()">
+         Dive IN!
+      </button>
+  </body>
+</html>
